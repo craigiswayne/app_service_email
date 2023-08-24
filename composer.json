@@ -1,0 +1,20 @@
+{
+    "name": "craigiswayne/app_service_email",
+    "description": "App Service Email Plugin seamlessly integrates with the Azure Email Communication Service, empowering your WordPress website with email capabilities.",
+    "type": "wordpress-plugin",
+    "keywords": [
+        "composer",
+        "wordpress",
+        "plugin",
+        "azure",
+        "email"
+    ],
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Craig Wayne",
+            "email": "craigiswayne@gmail.com"
+        }
+    ],
+    "require": {}
+}
