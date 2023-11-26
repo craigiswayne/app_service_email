@@ -27,7 +27,8 @@
  * @subpackage App_service_email/includes
  * @author     Microsoft <wordpressdev@microsoft.com>
  */
-class App_service_email {
+class App_service_email
+{
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
@@ -66,8 +67,9 @@ class App_service_email {
 	 *
 	 * @since    1.0.0
 	 */
-	public function __construct() {
-		if ( defined( 'APP_SERVICE_EMAIL_VERSION' ) ) {
+	public function __construct()
+	{
+		if (defined('APP_SERVICE_EMAIL_VERSION')) {
 			$this->version = APP_SERVICE_EMAIL_VERSION;
 		} else {
 			$this->version = '1.0.0';
@@ -78,7 +80,6 @@ class App_service_email {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-
 	}
 
 	/**
@@ -97,39 +98,41 @@ class App_service_email {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function load_dependencies() {
+	private function load_dependencies()
+	{
 
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-app_service_email-loader.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-app_service_email-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-app_service_email-i18n.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-app_service_email-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-app_service_email-admin.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-app_service_email-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-app_service_email-public.php';
-        
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-app_service_email-public.php';
+
 		/**
 		 * The class responsible for defining all email related actions using azure email communication service
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'admin/mailer/class-azure_app_service_email-controller.php';
 
+		require_once plugin_dir_path(dirname(__FILE__)) . 'admin/logger/class-azure_app_service_email-logger.php';
+
 
 		$this->loader = new App_service_email_Loader();
-
 	}
 
 	/**
@@ -141,12 +144,12 @@ class App_service_email {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function set_locale() {
+	private function set_locale()
+	{
 
 		$plugin_i18n = new App_service_email_i18n();
 
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
+		$this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
 	}
 
 	/**
@@ -156,13 +159,14 @@ class App_service_email {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_admin_hooks() {
+	private function define_admin_hooks()
+	{
 
-		$plugin_admin = new App_service_email_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin = new App_service_email_Admin($this->get_plugin_name(), $this->get_version());
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
+		$this->loader->add_action('admin_menu', $plugin_admin, 'email_logger_add_admin_menu');
 	}
 
 	/**
@@ -172,10 +176,11 @@ class App_service_email {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_public_hooks() {
+	private function define_public_hooks()
+	{
 
 		$plugin_public = new App_service_email_Public($this->get_plugin_name(), $this->get_version());
-
+		$logemail = new Azure_app_service_email_logger();
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 		add_filter('pre_wp_mail', function ($null, $atts) {
@@ -183,6 +188,9 @@ class App_service_email {
 			$result = $sendemail->override_wp_mail_with_acs($atts);
 			return $result;
 		}, 10, 2);
+
+		add_action('wp', array($logemail, 'custom_schedule_email_logs_cleanup'));
+		add_action('custom_daily_email_logs_cleanup', array($logemail, 'custom_delete_old_email_logs'));
 	}
 
 	/**
@@ -190,7 +198,8 @@ class App_service_email {
 	 *
 	 * @since    1.0.0
 	 */
-	public function run() {
+	public function run()
+	{
 		$this->loader->run();
 	}
 
@@ -201,7 +210,8 @@ class App_service_email {
 	 * @since     1.0.0
 	 * @return    string    The name of the plugin.
 	 */
-	public function get_plugin_name() {
+	public function get_plugin_name()
+	{
 		return $this->plugin_name;
 	}
 
@@ -211,7 +221,8 @@ class App_service_email {
 	 * @since     1.0.0
 	 * @return    App_service_email_Loader    Orchestrates the hooks of the plugin.
 	 */
-	public function get_loader() {
+	public function get_loader()
+	{
 		return $this->loader;
 	}
 
@@ -221,8 +232,8 @@ class App_service_email {
 	 * @since     1.0.0
 	 * @return    string    The version number of the plugin.
 	 */
-	public function get_version() {
+	public function get_version()
+	{
 		return $this->version;
 	}
-
 }

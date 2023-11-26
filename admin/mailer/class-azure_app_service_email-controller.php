@@ -86,7 +86,8 @@ class Azure_app_service_email_controller
             'senderAddress' => $senderaddress,
             'content' => [
                 'subject' => $subject,
-                'plainText' => $message
+                'plainText' => $message,
+                'html' => nl2br($message)
             ],
             'recipients' => [
                 'to' => array(array('address' => $to))
@@ -122,8 +123,13 @@ class Azure_app_service_email_controller
 
     public function acs_send_email($to, $subject, $message)
     {
+        require_once plugin_dir_path(dirname(__FILE__)) . '../admin/logger/class-azure_app_service_email-logger.php';
+        $logemail = new Azure_app_service_email_logger();
+
         if (empty(getenv('WP_EMAIL_CONNECTION_STRING'))) {
-            do_action('wp_mail_failed', new WP_Error('acs_mail_failed', 'App Setting WP_EMAIL_CONNECTION_STRING is missing'));
+            $error_msg = 'App Setting WP_EMAIL_CONNECTION_STRING is missing. <a href="https://github.com/Azure/wordpress-linux-appservice/blob/main/WordPress/wordpress_email_integration.md#:~:text=WP_EMAIL_CONNECTION_STRING">Click here</a> for more details.';
+            do_action('wp_mail_failed', new WP_Error('acs_mail_failed', $error_msg));
+            $logemail->email_logger_capture_emails($to, $subject, 'Failure', $error_msg);
             return false;
         }
 
@@ -135,9 +141,16 @@ class Azure_app_service_email_controller
             $senderaddress = $matches[2];
             $apikey = $matches[3];
         } else {
-            //logging error when app setting is not in expected format
-            do_action('wp_mail_failed', new WP_Error('acs_mail_failed', 'App Setting WP_EMAIL_CONNECTION_STRING is not in the right format'));
+            $error_message = 'App Setting WP_EMAIL_CONNECTION_STRING is not in the right format. <a href="https://github.com/Azure/wordpress-linux-appservice/blob/main/WordPress/wordpress_email_integration.md#:~:text=WP_EMAIL_CONNECTION_STRING">Click here</a> for more details.';
+            $wp_error = new WP_Error('acs_mail_failed', $error_message);
+            $logemail->email_logger_capture_emails($to, $subject, 'Failure', $error_message);
+            do_action('wp_mail_failed', $wp_error);
             return false;
+        }
+        
+        if (substr($acsurl, -1) === '/') {
+            // Remove the trailing slash
+            $acsurl = rtrim($acsurl, '/');
         }
 
         $acshost = str_replace('https://', '', $acsurl);
@@ -154,25 +167,30 @@ class Azure_app_service_email_controller
         try {
             $response = $this->send_email_request($acsurl, $headers, $requestBody);
             if (is_wp_error($response)) {
-                do_action('wp_mail_failed', new WP_Error('acs_mail_failed', $response->get_error_message()));
+                $message = $response->get_error_message() . '<a href="https://learn.microsoft.com/en-us/azure/communication-services/support">Click here</a> for more support.';
+                do_action('wp_mail_failed', new WP_Error('acs_mail_failed',));
+                $logemail->email_logger_capture_emails($to, $subject, 'Failure', $message);
                 return false;
             } else {
                 $response_code = wp_remote_retrieve_response_code($response);
                 $response_array = json_decode(wp_json_encode($response), true);
                 $body_array = json_decode($response_array['body'], true);
                 $status = $body_array['status'];
-                
                 if ($response_code === 200 || ($response_code === 202 && $status === 'Running')) {
+                    $logemail->email_logger_capture_emails($to, $subject, 'Success', '');
                     return true;
                 } else {
                     $error_array = $body_array['error'];
-                    $message = $error_array['message'];
+                    $message = $error_array['message'] . '<a href="https://learn.microsoft.com/en-us/azure/communication-services/support">Click here</a> for more support.';
                     do_action('wp_mail_failed', new WP_Error('acs_mail_failed', $message));
+                    $logemail->email_logger_capture_emails($to, $subject, 'Failure', $message);
                     return false;
                 }
             }
         } catch (Exception $e) {
-            do_action('wp_mail_failed', new WP_Error('acs_mail_failed', 'An Error Occured: ' . $e->getMessage()));
+            $message = $e->getMessage() . '<a href="https://learn.microsoft.com/en-us/azure/communication-services/support">Click here</a> for more support.';
+            do_action('wp_mail_failed', new WP_Error('acs_mail_failed', 'An Error Occured: ' . $message));
+            $logemail->email_logger_capture_emails($to, $subject, 'Failure', 'An Error Occured: ' . $message);
             return false;
         }
     }

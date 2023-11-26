@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       App Service Email
  * Plugin URI:        https://github.com/Azure/Wordpress-on-Linux-App-Service-plugins/tree/main/app_service_email
- * Description:       App Service Email Plugin seamlessly integrates with the Azure Email Communication Service, empowering your WordPress website with email capabilities.
+ * Description:       App Service Email  Plugin seamlessly  integrates with the Azure Communication Services Email, empowering your WordPress website with email capabilities and effortlessly log all WordPress emails.
  * Version:           1.0.0
  * Author:            Microsoft
  * Author URI:        https://www.microsoft.com
@@ -27,7 +27,7 @@
 
 // If this file is called directly, abort.
 if (!defined('WPINC')) {
-	die;
+    die;
 }
 
 /**
@@ -43,8 +43,8 @@ define('APP_SERVICE_EMAIL_VERSION', '1.0.0');
  */
 function activate_app_service_email()
 {
-	require_once plugin_dir_path(__FILE__) . 'includes/class-app_service_email-activator.php';
-	App_service_email_Activator::activate();
+    require_once plugin_dir_path(__FILE__) . 'includes/class-app_service_email-activator.php';
+    App_service_email_Activator::activate();
 }
 
 /**
@@ -53,8 +53,8 @@ function activate_app_service_email()
  */
 function deactivate_app_service_email()
 {
-	require_once plugin_dir_path(__FILE__) . 'includes/class-app_service_email-deactivator.php';
-	App_service_email_Deactivator::deactivate();
+    require_once plugin_dir_path(__FILE__) . 'includes/class-app_service_email-deactivator.php';
+    App_service_email_Deactivator::deactivate();
 }
 
 register_activation_hook(__FILE__, 'activate_app_service_email');
@@ -79,7 +79,7 @@ require plugin_dir_path(__FILE__) . 'includes/class-app_service_email.php';
 function run_app_service_email()
 {
 
-	$plugin = new App_service_email();
-	$plugin->run();
+    $plugin = new App_service_email();
+    $plugin->run();
 }
 run_app_service_email();
