@@ -72,7 +72,7 @@ class App_service_email
 		if (defined('APP_SERVICE_EMAIL_VERSION')) {
 			$this->version = APP_SERVICE_EMAIL_VERSION;
 		} else {
-			$this->version = '1.0.0';
+			$this->version = '1.0.1';
 		}
 		$this->plugin_name = 'app_service_email';
 
@@ -164,7 +164,7 @@ class App_service_email
 
 		$plugin_admin = new App_service_email_Admin($this->get_plugin_name(), $this->get_version());
 
-		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
+//		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		$this->loader->add_action('admin_menu', $plugin_admin, 'email_logger_add_admin_menu');
 	}
@@ -181,8 +181,8 @@ class App_service_email
 
 		$plugin_public = new App_service_email_Public($this->get_plugin_name(), $this->get_version());
 		$logemail = new Azure_app_service_email_logger();
-		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
-		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
+//		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
+//		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 		add_filter('pre_wp_mail', function ($null, $atts) {
 			$sendemail = new Azure_app_service_email_controller($this->get_plugin_name(), $this->get_version());
 			$result = $sendemail->override_wp_mail_with_acs($atts);
