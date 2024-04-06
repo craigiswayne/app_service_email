@@ -63,7 +63,7 @@ class App_service_email_Admin
     public function enqueue_styles()
     {
         // Enqueue your custom stylesheets     
-        wp_enqueue_style('app_service_email_admin', plugin_dir_url(__FILE__) . 'css/app_service_email-admin.css', array(), '1.0.0', 'all');
+        wp_enqueue_style('app_service_email_admin', plugin_dir_url(__FILE__) . 'css/app_service_email-admin.css', array(), '1.0.1', 'all');
     }
 
     /**

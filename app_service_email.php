@@ -16,7 +16,7 @@
  * Plugin Name:       App Service Email
  * Plugin URI:        https://github.com/Azure/Wordpress-on-Linux-App-Service-plugins/tree/main/app_service_email
  * Description:       App Service Email  Plugin seamlessly  integrates with the Azure Communication Services Email, empowering your WordPress website with email capabilities and effortlessly log all WordPress emails.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Microsoft
  * Author URI:        https://www.microsoft.com
  * License:           GPL-2.0+
@@ -35,7 +35,7 @@ if (!defined('WPINC')) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('APP_SERVICE_EMAIL_VERSION', '1.0.0');
+define('APP_SERVICE_EMAIL_VERSION', '1.0.1');
 
 /**
  * The code that runs during plugin activation.
