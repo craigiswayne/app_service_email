@@ -72,7 +72,7 @@ class App_service_email
 		if (defined('APP_SERVICE_EMAIL_VERSION')) {
 			$this->version = APP_SERVICE_EMAIL_VERSION;
 		} else {
-			$this->version = '1.0.1';
+			$this->version = '1.0.2';
 		}
 		$this->plugin_name = 'app_service_email';
 
